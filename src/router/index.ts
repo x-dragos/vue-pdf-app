@@ -3,7 +3,7 @@ import Router from "vue-router";
 import PdfViewer from "@/views/pdf-app.vue";
 import ThemeToggling from "@/views/theme-toggling.vue";
 import About from "@/components/about.vue";
-import Sandbox from "@/views/sandbox.vue";
+import Sandbox from "@/views/Sandbox.vue";
 
 Vue.use(Router);
 

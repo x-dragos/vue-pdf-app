@@ -198,42 +198,6 @@ PDFPrintService.prototype = {
 };
 const print = window.print;
 
-window.print = function () {
-  if (activeService) {
-    console.warn("Ignored window.print() because of a pending print job.");
-    return;
-  }
-
-  ensureOverlay().then(function () {
-    if (activeService) {
-      overlayManager.open("printServiceOverlay");
-    }
-  });
-
-  try {
-    dispatchEvent("beforeprint");
-  } finally {
-    if (!activeService) {
-      console.error("Expected print service to be initialized.");
-      ensureOverlay().then(function () {
-        if (overlayManager.active === "printServiceOverlay") {
-          overlayManager.close("printServiceOverlay");
-        }
-      });
-      return;
-    }
-
-    const activeServiceOnEntry = activeService;
-    activeService.renderPages().then(function () {
-      return activeServiceOnEntry.performPrint();
-    }).catch(function () {}).then(function () {
-      if (activeServiceOnEntry.active) {
-        abort();
-      }
-    });
-  }
-};
-
 function dispatchEvent(eventType) {
   const event = document.createEvent("CustomEvent");
   event.initCustomEvent(eventType, false, false, "custom");
@@ -313,4 +277,40 @@ _app.PDFPrintServiceFactory.instance = {
     return activeService;
   }
 
+};
+
+window.print = function () {
+  if (activeService) {
+    console.warn("Ignored window.print() because of a pending print job.");
+    return;
+  }
+
+  ensureOverlay().then(function () {
+    if (activeService) {
+      overlayManager.open("printServiceOverlay");
+    }
+  });
+
+  try {
+    dispatchEvent("beforeprint");
+  } finally {
+    if (!activeService) {
+      console.error("Expected print service to be initialized.");
+      ensureOverlay().then(function () {
+        if (overlayManager.active === "printServiceOverlay") {
+          overlayManager.close("printServiceOverlay");
+        }
+      });
+      return;
+    }
+
+    const activeServiceOnEntry = activeService;
+    activeService.renderPages().then(function () {
+      return activeServiceOnEntry.performPrint();
+    }).catch(function () {}).then(function () {
+      if (activeServiceOnEntry.active) {
+        abort();
+      }
+    });
+  }
 };
